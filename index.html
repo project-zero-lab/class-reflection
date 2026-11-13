@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<title>Class Reflection | Teacher Workspace</title>
+<style>
+:root{
+  --bg:#f5f7fb;--surface:#fff;--ink:#172033;--muted:#68758b;--line:#e6eaf1;
+  --brand:#5b5bd6;--brand-dark:#4646b8;--brand-soft:#eeeeff;
+  --green:#16865b;--green-soft:#e9f8f1;--amber:#a86618;--amber-soft:#fff5e8;
+  --red:#b64255;--red-soft:#fff0f2;--shadow:0 10px 28px rgba(26,39,70,.06);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #b9baff;outline-offset:2px}
+.app{max-width:1120px;margin:auto;padding:18px 15px 100px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.logo{width:43px;height:43px;border-radius:14px;background:linear-gradient(145deg,#6868e8,#8585f3);display:grid;place-items:center;color:white;font-size:21px;font-weight:800;box-shadow:0 7px 18px #5b5bd633}
+h1,h2,h3,p{margin:0}
+h1{font-size:19px;letter-spacing:-.3px}.subtitle{font-size:12px;color:var(--muted);margin-top:3px}
+.header-actions{display:flex;gap:8px}
+.btn,.icon-btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;min-height:42px;padding:0 13px;font-weight:650}
+.icon-btn{width:42px;padding:0;font-size:18px}
+.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:0 6px 15px #5b5bd626}
+.btn.primary:hover{background:var(--brand-dark)}
+.btn.small{min-height:36px;padding:0 11px;font-size:12px}
+.btn.danger{color:var(--red);border-color:#f0cbd1;background:#fff}
+.screen{display:none}.screen.active{display:block}
+.hero{background:linear-gradient(120deg,#fff 5%,#f0f0ff 100%);border:1px solid #e5e5fb;border-radius:24px;padding:23px;box-shadow:var(--shadow);margin-bottom:16px}
+.hero-kicker{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--brand);margin-bottom:8px}
+.hero h2{font-size:clamp(23px,4vw,31px);letter-spacing:-.8px;max-width:620px;line-height:1.15}
+.hero p{font-size:14px;color:var(--muted);line-height:1.55;margin-top:9px;max-width:620px}
+.hero .btn{margin-top:17px;min-height:46px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:21px 2px 11px}
+.section-head h2{font-size:16px}.section-head .muted{font-size:12px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat,.card,.history-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.stat{padding:14px}.stat-top{display:flex;justify-content:space-between;align-items:center}.stat-icon{font-size:18px}.stat-number{font-size:25px;font-weight:800;letter-spacing:-.7px;margin-top:6px}.stat-label{font-size:12px;color:var(--muted);margin-top:1px}
+.card{padding:16px;margin-bottom:12px}
+.grid{display:grid;gap:12px}.two{grid-template-columns:1fr}
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+label{display:block;font-size:12px;font-weight:750;margin-bottom:7px}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:11px 12px;min-height:44px}
+textarea{min-height:96px;resize:vertical;line-height:1.45}
+.hint{font-size:11px;color:var(--muted);margin-top:6px}
+.choice-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.choice{border:1px solid var(--line);background:#fff;border-radius:11px;min-height:43px;font-size:12px;font-weight:750;color:#596276;padding:5px}
+.choice.good.selected{background:var(--green-soft);border-color:#72c9a2;color:var(--green)}
+.choice.avg.selected{background:var(--amber-soft);border-color:#edc48d;color:var(--amber)}
+.choice.attn.selected{background:var(--red-soft);border-color:#e8a0aa;color:var(--red)}
+.student-entry{display:flex;gap:8px}.student-entry input{flex:1;min-width:0}
+.student-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.student-chip{display:flex;align-items:center;gap:7px;border:1px solid #efcbd1;background:var(--red-soft);color:#9f394b;border-radius:999px;padding:7px 9px 7px 12px;font-size:12px;font-weight:700}
+.student-chip button{border:0;background:transparent;color:inherit;font-size:16px;line-height:1;padding:0 1px}
+.reason-panel{display:none;background:#fff8f8;border:1px solid #f1d9dd;border-radius:14px;padding:12px;margin-top:12px}
+.reason-panel.show{display:block}.reason-title{font-size:12px;font-weight:800;margin-bottom:9px}
+.reason-list{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.reason-option{background:#fff;border:1px solid #efd8dc;border-radius:10px;min-height:39px;font-size:11px;padding:5px}
+.reason-option.selected{background:#ffe8ec;border-color:#df8e9b;color:#a6384c;font-weight:750}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.action-option{border:1px solid var(--line);background:#fff;border-radius:13px;padding:11px;text-align:left;min-height:62px}
+.action-option strong{display:block;font-size:12px}.action-option small{display:block;color:var(--muted);font-size:10px;margin-top:4px;line-height:1.35}
+.action-option.selected{border-color:#8585e9;background:var(--brand-soft);box-shadow:inset 0 0 0 1px #8585e9}
+.notice{display:none;padding:11px 13px;border-radius:12px;font-size:12px;margin-bottom:12px}
+.notice.show{display:block}.notice.error{background:var(--red-soft);border:1px solid #f0cbd1;color:#a2384b}.notice.success{background:var(--green-soft);border:1px solid #bfe8d4;color:#16764f}
+.form-footer{position:sticky;bottom:0;padding:18px 0 4px;background:linear-gradient(transparent,var(--bg) 28%);z-index:5}
+.form-footer .btn{width:100%;min-height:49px;font-size:14px}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);border:1px dashed #cfd6e2;border-radius:15px;background:#fbfcfe;font-size:13px}
+.empty strong{display:block;color:var(--ink);margin-bottom:5px;font-size:14px}
+.recent-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.recent-row:last-child{border-bottom:0}.recent-main{min-width:0}.recent-main strong{display:block;font-size:13px}.recent-main small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800;background:var(--brand-soft);color:#4e4ebc;margin-top:7px}
+.pill.attention{background:var(--red-soft);color:var(--red)}.pill.clear{background:var(--green-soft);color:var(--green)}
+.history-tools{display:grid;gap:8px}.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.history-list{display:grid;gap:10px;margin-top:12px}
+.history-card{padding:14px}
+.history-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.history-title{font-size:13px;font-weight:800}.date{font-size:11px;color:var(--muted);margin-top:4px}
+.history-summary{font-size:12px;color:var(--muted);line-height:1.45;margin-top:9px;overflow-wrap:anywhere}
+.modal-backdrop{display:none;position:fixed;inset:0;background:#14192d70;z-index:30;padding:14px;align-items:flex-end;justify-content:center}
+.modal-backdrop.show{display:flex}.modal{background:#fff;width:min(650px,100%);max-height:88vh;overflow:auto;border-radius:21px;padding:17px;box-shadow:0 20px 60px #0003}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.modal-head h2{font-size:17px}
+.detail-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}.detail-row span{color:var(--muted)}.detail-row strong{text-align:right}
+.detail-note{background:#f7f8fb;border-radius:12px;padding:11px;margin-top:8px;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.detail-section{font-size:12px;font-weight:800;margin-top:14px}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#ffffffed;border-top:1px solid var(--line);padding:7px 10px calc(7px + env(safe-area-inset-bottom));backdrop-filter:blur(12px)}
+.nav-inner{width:min(560px,100%);margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.nav-inner button{border:0;background:transparent;border-radius:12px;min-height:48px;color:#707a8d;font-size:11px;font-weight:750}
+.nav-inner button span{display:block;font-size:18px;line-height:20px;margin-bottom:2px}.nav-inner button.active{background:var(--brand-soft);color:#4e4ebc}
+.toast{position:fixed;left:50%;bottom:82px;transform:translate(-50%,15px);background:#172033;color:#fff;border-radius:12px;padding:10px 14px;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:50;max-width:calc(100vw - 28px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.footer-note{text-align:center;color:var(--muted);font-size:10px;margin-top:17px}
+@media(min-width:700px){
+ .app{padding:24px 22px 40px}.bottom-nav{position:static;border:0;background:transparent;padding:0;margin-bottom:20px;backdrop-filter:none}
+ .nav-inner{max-width:none;display:flex;justify-content:flex-start;gap:8px}.nav-inner button{padding:0 15px;min-height:40px}.nav-inner button span{display:inline;margin-right:5px;font-size:15px}
+ .stats{grid-template-columns:repeat(4,minmax(0,1fr))}.two{grid-template-columns:1fr 1fr}.history-tools{grid-template-columns:1fr 1.5fr}.filters{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .modal-backdrop{align-items:center}
+}
+@media(max-width:360px){.choice{font-size:10px}.action-grid{grid-template-columns:1fr}.hero{padding:18px}.student-entry{flex-direction:column}.reason-list{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="logo">✓</div><div><h1>Class Reflection</h1><div class="subtitle">A thoughtful teaching workspace</div></div></div>
+  <div class="header-actions"><button class="icon-btn" id="homeBtn" aria-label="Dashboard" title="Dashboard">⌂</button><button class="icon-btn" id="newTopBtn" aria-label="New reflection" title="New reflection">＋</button></div>
+</header>
+
+<main>
+<section id="dashboard" class="screen active">
+  <div class="hero">
+    <div class="hero-kicker">Reflect · Learn · Improve</div>
+    <h2>Turn every class into a better next step.</h2>
+    <p>Capture what worked, notice who may need support, and keep classroom follow-ups in one simple place.</p>
+    <button class="btn primary" id="startBtn">＋ Start a new reflection</button>
+  </div>
+  <div class="section-head"><h2>At a glance</h2><span class="muted" id="todayLabel"></span></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-top"><span class="stat-label">Total reflections</span><span class="stat-icon">📝</span></div><div class="stat-number" id="statRecent">0</div></div>
+    <div class="stat"><div class="stat-top"><span class="stat-label">Students flagged</span><span class="stat-icon">👀</span></div><div class="stat-number" id="statAttention">0</div></div>
+    <div class="stat"><div class="stat-top"><span class="stat-label">Follow-ups pending</span><span class="stat-icon">↗</span></div><div class="stat-number" id="statFollow">0</div></div>
+    <div class="stat"><div class="stat-top"><span class="stat-label">Classes reflected on</span><span class="stat-icon">🏫</span></div><div class="stat-number" id="statClasses">0</div></div>
+  </div>
+  <div class="section-head"><h2>Recent reflections</h2><button class="btn small" id="viewHistoryBtn">View history</button></div>
+  <div class="card" id="recentList"></div>
+  <div class="footer-note">Your reflections are saved on this device in this browser.</div>
+</section>
+
+<section id="reflection" class="screen">
+  <button class="btn small" id="backDashboard">← Dashboard</button>
+  <div class="section-head"><h2 id="formHeading">New reflection</h2><span class="muted">About 2 minutes</span></div>
+  <div id="formNotice" class="notice" role="status"></div>
+  <div class="card">
+    <div class="grid two">
+      <div class="field"><label for="classSelect">Class *</label><select id="classSelect"><option value="">Select class</option><option>6A</option><option>6B</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option><option>10A</option><option>10B</option><option>11A</option><option>11B</option><option>12A</option><option>12B</option></select></div>
+      <div class="field"><label for="subjectSelect">Subject *</label><select id="subjectSelect"><option value="">Select subject</option><option>Mathematics</option><option>Science</option><option>English</option><option>Hindi</option><option>Social Science</option><option>Computer Science</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Other</option></select></div>
+    </div>
+  </div>
+  <div class="section-head"><h2>Quick class reflection</h2><span class="muted">Choose one per row *</span></div>
+  <div class="card">
+    <div class="field"><label>Student engagement</label><div class="choice-row" data-key="engagement"><button class="choice good" data-value="Good">Good</button><button class="choice avg" data-value="Average">Average</button><button class="choice attn" data-value="Needs Attention">Needs attention</button></div></div>
+    <div class="field"><label>Student participation</label><div class="choice-row" data-key="participation"><button class="choice good" data-value="Good">Good</button><button class="choice avg" data-value="Average">Average</button><button class="choice attn" data-value="Needs Attention">Needs attention</button></div></div>
+    <div class="field"><label>Student understanding</label><div class="choice-row" data-key="understanding"><button class="choice good" data-value="Good">Good</button><button class="choice avg" data-value="Average">Average</button><button class="choice attn" data-value="Needs Attention">Needs attention</button></div></div>
+    <div class="field"><label>Lesson completion</label><div class="choice-row" data-key="completion"><button class="choice good" data-value="Good">Good</button><button class="choice avg" data-value="Average">Average</button><button class="choice attn" data-value="Needs Attention">Needs attention</button></div></div>
+  </div>
+  <div class="section-head"><h2>Students needing attention</h2><span class="muted">Optional</span></div>
+  <div class="card">
+    <label for="studentName">Add a student</label>
+    <div class="student-entry"><input id="studentName" maxlength="60" placeholder="Enter student name" autocomplete="off"><button class="btn" id="addStudentBtn">Add student</button></div>
+    <div class="hint">Add only students who may benefit from extra support. Choose a reason for each name.</div>
+    <div class="student-list" id="studentList"></div>
+    <div class="reason-panel" id="reasonPanel"><div class="reason-title" id="reasonTitle">Reason for selected student</div><div class="reason-list" id="reasonList">
+      <button class="reason-option" data-reason="Needs Revision">Needs revision</button><button class="reason-option" data-reason="Needs Individual Support">Individual support</button><button class="reason-option" data-reason="Low Participation">Low participation</button><button class="reason-option" data-reason="Difficulty Understanding">Difficulty understanding</button>
+    </div></div>
+  </div>
+  <div class="section-head"><h2>Quick note / evidence</h2><span class="muted">Optional · 500 characters</span></div>
+  <div class="card"><textarea id="notes" maxlength="500" placeholder="Example: Most students understood the concept; a few students may benefit from a short revision next class."></textarea><div class="hint" style="text-align:right"><span id="charCount">0</span>/500</div></div>
+  <div class="section-head"><h2>What happens next?</h2><span class="muted">Choose one *</span></div>
+  <div class="card"><div class="action-grid" id="actionGrid">
+    <button class="action-option" data-action="Revision"><strong>🔁 Revision</strong><small>Revisit key ideas in the next class</small></button>
+    <button class="action-option" data-action="Individual Support"><strong>🤝 Individual support</strong><small>Give targeted help to students</small></button>
+    <button class="action-option" data-action="Extra Practice"><strong>✏️ Extra practice</strong><small>Share more practice work</small></button>
+    <button class="action-option" data-action="Parent Follow-up"><strong>📞 Parent follow-up</strong><small>Connect with a student's family</small></button>
+    <button class="action-option" data-action="No Immediate Action"><strong>✓ No immediate action</strong><small>Continue monitoring progress</small></button>
+  </div></div>
+  <div class="form-footer"><button class="btn primary" id="saveBtn">Save reflection</button></div>
+</section>
+
+<section id="history" class="screen">
+  <div class="section-head"><h2>Class history</h2><span class="muted" id="historyCount">0 reflections</span></div>
+  <div class="card">
+    <div class="history-tools">
+      <input id="searchInput" placeholder="Search student, class or notes…" aria-label="Search reflections">
+      <div class="filters">
+        <input type="date" id="dateFilter" aria-label="Filter by date">
+        <select id="classFilter" aria-label="Filter by class"><option value="">All classes</option></select>
+        <select id="subjectFilter" aria-label="Filter by subject"><option value="">All subjects</option></select>
+        <select id="attentionFilter" aria-label="Filter by attention"><option value="">All attention</option><option value="yes">Attention required</option><option value="no">No attention</option></select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn small" id="exportBtn">Export backup (JSON)</button><button class="btn small" id="csvBtn">Export visible as CSV</button><button class="btn small" id="importBtn">Import backup</button><input type="file" id="importFile" accept="application/json,.json" hidden></div>
+    <div class="hint">Back up your data before changing devices or clearing browser data.</div>
+  </div>
+  <div class="history-list" id="historyList"></div>
+</section>
+</main>
+</div>
+
+<nav class="bottom-nav"><div class="nav-inner">
+  <button data-screen="dashboard" class="active"><span>⌂</span>Dashboard</button>
+  <button data-screen="reflection"><span>＋</span>New reflection</button>
+  <button data-screen="history"><span>▤</span>History</button>
+</div></nav>
+
+<div class="modal-backdrop" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+  <div class="modal"><div class="modal-head"><h2 id="detailTitle">Reflection details</h2><button class="icon-btn" id="closeModal" aria-label="Close">×</button></div><div id="detailContent"></div></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+const STORAGE_KEY="teacherClassReflections_v2";
+const $=id=>document.getElementById(id);
+let reflections=loadData();
+let form=emptyForm();
+let editingId=null;
+let activeStudent="";
+
+function emptyForm(){return {engagement:"",participation:"",understanding:"",completion:"",students:{},nextAction:""}}
+function loadData(){try{const current=localStorage.getItem(STORAGE_KEY);const legacy=current===null?localStorage.getItem("teacherClassReflections_v1"):null;const v=JSON.parse(current!==null?current:(legacy||"[]"));return Array.isArray(v)?v:[]}catch(e){return []}}
+function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(reflections));return true}catch(e){toast("Could not save. Your browser storage may be full.");return false}}
+function escapeHTML(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function dateLabel(v){const d=new Date(v);return isNaN(d)?String(v):d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}
+function toast(message){const t=$("toast");t.textContent=message;t.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),2400)}
+function notice(message,type="error"){$("formNotice").textContent=message;$("formNotice").className="notice show "+type}
+function clearNotice(){$("formNotice").className="notice"}
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===id));document.querySelectorAll(".nav-inner button").forEach(b=>b.classList.toggle("active",b.dataset.screen===id));window.scrollTo({top:0,behavior:"smooth"});if(id==="dashboard")renderDashboard();if(id==="history")renderHistory()}
+function resetForm(){form=emptyForm();editingId=null;$("formHeading").textContent="New reflection";$("classSelect").value="";$("subjectSelect").value="";$("notes").value="";$("charCount").textContent="0";$("studentName").value="";document.querySelectorAll(".choice.selected,.action-option.selected,.reason-option.selected").forEach(x=>x.classList.remove("selected"));$("reasonPanel").classList.remove("show");renderStudents();clearNotice()}
+function setFormFromRecord(r){form={engagement:r.engagement||"",participation:r.participation||"",understanding:r.understanding||"",completion:r.completion||"",students:{...(r.students||{})},nextAction:r.nextAction||""};editingId=r.id;$("formHeading").textContent="Edit reflection";$("classSelect").value=r.className;$("subjectSelect").value=r.subject;$("notes").value=r.notes||"";$("charCount").textContent=$("notes").value.length;document.querySelectorAll(".choice-row").forEach(row=>row.querySelectorAll(".choice").forEach(b=>b.classList.toggle("selected",form[row.dataset.key]===b.dataset.value)));document.querySelectorAll(".action-option").forEach(b=>b.classList.toggle("selected",form.nextAction===b.dataset.action));activeStudent=Object.keys(form.students)[0]||"";renderStudents();updateReasonUI()}
+function renderStudents(){const names=Object.keys(form.students);$("studentList").innerHTML=names.map(n=>`<span class="student-chip">${escapeHTML(n)}<button type="button" data-remove-student="${escapeHTML(n)}" aria-label="Remove ${escapeHTML(n)}">×</button></span>`).join("");}
+function updateReasonUI(){const names=Object.keys(form.students);if(!names.length){$("reasonPanel").classList.remove("show");activeStudent="";return}if(!activeStudent||!form.students.hasOwnProperty(activeStudent))activeStudent=names[names.length-1];$("reasonPanel").classList.add("show");$("reasonTitle").textContent="Reason for: "+activeStudent;document.querySelectorAll(".reason-option").forEach(b=>b.classList.toggle("selected",form.students[activeStudent]===b.dataset.reason))}
+function addStudent(){const name=$("studentName").value.trim().replace(/\s+/g," ");if(!name){$("studentName").focus();return}if(Object.keys(form.students).some(n=>n.toLowerCase()===name.toLowerCase())){toast("That student is already on the list.");return}form.students[name]="";activeStudent=name;$("studentName").value="";renderStudents();updateReasonUI()}
+function saveReflection(){clearNotice();const cls=$("classSelect").value,subj=$("subjectSelect").value;if(!cls||!subj){notice("Please select both a class and a subject.");return}const missing=["engagement","participation","understanding","completion"].find(k=>!form[k]);if(missing){notice("Please complete all four quick reflection ratings.");return}if(Object.values(form.students).some(v=>!v)){notice("Please choose a reason for each student listed.");return}if(!form.nextAction){notice("Please choose the next action.");return}
+const old=editingId?reflections.find(r=>r.id===editingId):null;const record={id:editingId||("r"+Date.now()+Math.random().toString(16).slice(2,6)),date:old?old.date:new Date().toISOString(),updatedAt:new Date().toISOString(),className:cls,subject:subj,engagement:form.engagement,participation:form.participation,understanding:form.understanding,completion:form.completion,students:{...form.students},notes:$("notes").value.trim(),nextAction:form.nextAction};
+if(editingId){const index=reflections.findIndex(r=>r.id===editingId);if(index>=0)reflections[index]=record}else reflections.unshift(record);
+if(!persist())return;resetForm();showScreen("dashboard");toast(editingId?"Reflection updated ✓":"Reflection saved ✓")}
+function renderDashboard(){const recent=reflections.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);const attention=new Set(),pending=new Set();reflections.forEach(r=>Object.keys(r.students||{}).forEach(n=>attention.add(n)));reflections.forEach(r=>{if(r.nextAction&&r.nextAction!=="No Immediate Action")pending.add(r.id)});$("statRecent").textContent=reflections.length;$("statAttention").textContent=attention.size;$("statFollow").textContent=pending.size;$("statClasses").textContent=new Set(reflections.map(r=>r.className)).size;$("todayLabel").textContent=new Date().toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"});const box=$("recentList");if(!recent.length){box.innerHTML='<div class="empty"><strong>No reflections yet</strong>Start your first post-class reflection above.</div>';return}box.innerHTML=recent.map(r=>`<div class="recent-row"><div class="recent-main"><strong>${escapeHTML(r.className)} · ${escapeHTML(r.subject)}</strong><small>${dateLabel(r.date)} · ${Object.keys(r.students||{}).length?Object.keys(r.students).length+" student(s) flagged":"No students flagged"}</small></div><button class="btn small" data-open="${escapeHTML(r.id)}">Open</button></div>`).join("");box.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>openDetails(b.dataset.open)))}
+function getFiltered(){const q=$("searchInput").value.trim().toLowerCase(),date=$("dateFilter").value,cls=$("classFilter").value,sub=$("subjectFilter").value,att=$("attentionFilter").value;return reflections.filter(r=>{const studentText=Object.entries(r.students||{}).map(([n,v])=>n+" "+v).join(" ");const hay=[r.className,r.subject,r.notes,studentText,r.nextAction].join(" ").toLowerCase();const has=Object.keys(r.students||{}).length>0;return(!q||hay.includes(q))&&(!date||String(r.date).slice(0,10)===date)&&(!cls||r.className===cls)&&(!sub||r.subject===sub)&&(!att||(att==="yes"?has:!has))}).sort((a,b)=>new Date(b.date)-new Date(a.date))}
+function populateFilters(){const cf=$("classFilter"),sf=$("subjectFilter"),cv=cf.value,sv=sf.value;const classes=[...new Set(reflections.map(r=>r.className))].sort(),subjects=[...new Set(reflections.map(r=>r.subject))].sort();cf.innerHTML='<option value="">All classes</option>'+classes.map(x=>`<option value="${escapeHTML(x)}">${escapeHTML(x)}</option>`).join("");sf.innerHTML='<option value="">All subjects</option>'+subjects.map(x=>`<option value="${escapeHTML(x)}">${escapeHTML(x)}</option>`).join("");cf.value=cv;sf.value=sv}
+function renderHistory(){populateFilters();const arr=getFiltered();$("historyCount").textContent=arr.length+" reflection"+(arr.length===1?"":"s");const box=$("historyList");if(!arr.length){box.innerHTML='<div class="empty"><strong>No matching reflections</strong>Try changing your filters or create a new reflection.</div>';return}box.innerHTML=arr.map(r=>{const count=Object.keys(r.students||{}).length;return `<article class="history-card"><div class="history-top"><div><div class="history-title">${escapeHTML(r.className)} · ${escapeHTML(r.subject)}</div><div class="date">${dateLabel(r.date)}</div></div><button class="btn small" data-open="${escapeHTML(r.id)}">View</button></div><span class="pill ${count?"attention":"clear"}">${count?count+" student(s) need attention":"No attention flagged"}</span><div class="history-summary">${escapeHTML(r.notes||"No note added.")} · Next: ${escapeHTML(r.nextAction||"Not specified")}</div></article>`}).join("");box.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>openDetails(b.dataset.open)))}
+function openDetails(id){const r=reflections.find(x=>x.id===id);if(!r)return;const students=Object.entries(r.students||{});$("detailContent").innerHTML=`<div class="detail-row"><span>Date</span><strong>${dateLabel(r.date)}</strong></div><div class="detail-row"><span>Class</span><strong>${escapeHTML(r.className)}</strong></div><div class="detail-row"><span>Subject</span><strong>${escapeHTML(r.subject)}</strong></div><div class="detail-row"><span>Engagement</span><strong>${escapeHTML(r.engagement)}</strong></div><div class="detail-row"><span>Participation</span><strong>${escapeHTML(r.participation)}</strong></div><div class="detail-row"><span>Understanding</span><strong>${escapeHTML(r.understanding)}</strong></div><div class="detail-row"><span>Lesson completion</span><strong>${escapeHTML(r.completion)}</strong></div><div class="detail-row"><span>Next action</span><strong>${escapeHTML(r.nextAction)}</strong></div><div class="detail-section">Students needing attention</div>${students.length?students.map(([n,v])=>`<div class="detail-note"><strong>${escapeHTML(n)}</strong> — ${escapeHTML(v)}</div>`).join(""):'<div class="detail-note">None selected.</div>'}<div class="detail-section">Observation / evidence</div><div class="detail-note">${escapeHTML(r.notes||"No note added.")}</div><div class="modal-actions"><button class="btn primary small" id="editRecordBtn">Edit reflection</button><button class="btn danger small" id="deleteRecordBtn">Delete</button></div>`;$("detailModal").classList.add("show");$("editRecordBtn").onclick=()=>{const rec=reflections.find(x=>x.id===id);$("detailModal").classList.remove("show");setFormFromRecord(rec);showScreen("reflection")};$("deleteRecordBtn").onclick=()=>deleteRecord(id)}
+function deleteRecord(id){if(!confirm("Delete this reflection? This cannot be undone unless you have a backup."))return;reflections=reflections.filter(r=>r.id!==id);persist();$("detailModal").classList.remove("show");renderHistory();renderDashboard();toast("Reflection deleted.")}
+function downloadFile(filename,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
+function exportJSON(){downloadFile("class-reflections-backup.json",JSON.stringify({app:"Class Reflection",version:2,exportedAt:new Date().toISOString(),reflections},null,2),"application/json");toast("Backup exported.")}
+function csvCell(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
+function exportCSV(){const rows=getFiltered();const header=["Date","Class","Subject","Engagement","Participation","Understanding","Lesson completion","Students needing attention","Notes","Next action"];const data=rows.map(r=>[dateLabel(r.date),r.className,r.subject,r.engagement,r.participation,r.understanding,r.completion,Object.entries(r.students||{}).map(([n,v])=>n+" — "+v).join("; "),r.notes,r.nextAction]);downloadFile("class-reflections.csv",[header,...data].map(row=>row.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8");toast("Visible reflections exported as CSV.")}
+function importJSON(file){const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result);const incoming=Array.isArray(parsed)?parsed:parsed.reflections;if(!Array.isArray(incoming))throw new Error("Invalid backup");const valid=incoming.filter(r=>r&&r.id&&r.className&&r.subject&&r.date);if(!valid.length)throw new Error("No valid reflections found");if(!confirm("Import "+valid.length+" reflection(s)? Existing records with the same ID will be replaced."))return;const map=new Map(reflections.map(r=>[r.id,r]));valid.forEach(r=>map.set(r.id,r));reflections=[...map.values()].sort((a,b)=>new Date(b.date)-new Date(a.date));persist();renderHistory();renderDashboard();toast(valid.length+" reflection(s) imported.")}catch(e){alert("Could not import this file. Please choose a Class Reflection JSON backup.")}};reader.readAsText(file)}
+// Navigation and form events
+$("startBtn").onclick=()=>{resetForm();showScreen("reflection")};$("newTopBtn").onclick=()=>{resetForm();showScreen("reflection")};$("homeBtn").onclick=()=>showScreen("dashboard");$("backDashboard").onclick=()=>showScreen("dashboard");$("viewHistoryBtn").onclick=()=>showScreen("history");
+document.querySelectorAll(".nav-inner button").forEach(b=>b.onclick=()=>{if(b.dataset.screen==="reflection")resetForm();showScreen(b.dataset.screen)});
+document.querySelectorAll(".choice-row").forEach(row=>row.addEventListener("click",e=>{const b=e.target.closest(".choice");if(!b)return;form[row.dataset.key]=b.dataset.value;row.querySelectorAll(".choice").forEach(x=>x.classList.toggle("selected",x===b))}));
+$("addStudentBtn").onclick=addStudent;$("studentName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addStudent()}});
+$("studentList").addEventListener("click",e=>{const b=e.target.closest("[data-remove-student]");if(!b)return;delete form.students[b.dataset.removeStudent];renderStudents();updateReasonUI()});
+$("studentList").addEventListener("click",e=>{const chip=e.target.closest(".student-chip");if(!chip||e.target.closest("button"))return;const name=chip.textContent.replace("×","").trim();if(form.students.hasOwnProperty(name)){activeStudent=name;updateReasonUI()}});
+$("reasonList").addEventListener("click",e=>{const b=e.target.closest(".reason-option");if(!b||!activeStudent)return;form.students[activeStudent]=b.dataset.reason;updateReasonUI()});
+$("actionGrid").addEventListener("click",e=>{const b=e.target.closest(".action-option");if(!b)return;form.nextAction=b.dataset.action;document.querySelectorAll(".action-option").forEach(x=>x.classList.toggle("selected",x===b))});
+$("notes").addEventListener("input",()=>$("charCount").textContent=$("notes").value.length);$("saveBtn").onclick=saveReflection;
+["searchInput","dateFilter","classFilter","subjectFilter","attentionFilter"].forEach(id=>$(id).addEventListener(id==="searchInput"?"input":"change",renderHistory));
+$("closeModal").onclick=()=>$("detailModal").classList.remove("show");$("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))$("detailModal").classList.remove("show")});
+$("exportBtn").onclick=exportJSON;$("csvBtn").onclick=exportCSV;$("importBtn").onclick=()=>$("importFile").click();$("importFile").onchange=e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value=""};
+renderDashboard();
+})();
+</script>
+</body>
+</html>
